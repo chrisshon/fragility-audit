@@ -1,8 +1,7 @@
+
 import { useState, useRef } from "react";
 
-const LOGO_SRC = "/logo.png";
-
-const WEBHOOK_URL = "https://YOUR_N8N_DOMAIN/webhook/audit-submission";
+const WEBHOOK_URL = "https://n8n.usecompound.ai/webhook/fragility-audit";
 
 const questions = [
   {
@@ -11,34 +10,36 @@ const questions = [
     question: "When your office person is unavailable, what happens to incoming calls?",
     options: [
       { text: "They go to voicemail or get missed entirely", score: 10, flag: "critical" },
-      { text: "Someone else picks up but can't schedule or quote", score: 7, flag: "moderate" },
-      { text: "Calls forward to me, but I'm usually on a job site", score: 8, flag: "critical" },
-      { text: "Another team member picks up and can schedule/answer questions", score: 4, flag: "moderate" },
-      { text: "We have a system (AI, answering service, or auto-routing) that handles it", score: 1, flag: "low" },
+      { text: "Someone else picks up but can't schedule, quote, or help much", score: 7, flag: "moderate" },
+      { text: "Someone else picks up and can schedule or take basic info", score: 4, flag: "low" },
+      { text: "Calls forward to my cell, but I'm usually on a job and can't answer", score: 8, flag: "critical" },
+      { text: "We have an answering service that takes messages (but can't book)", score: 5, flag: "moderate" },
+      { text: "An AI or auto-attendant answers, captures info, and routes or books", score: 1, flag: "low" },
     ],
   },
   {
     id: "scheduling",
-    category: "Scheduling & Booking",
-    question: "How do jobs get scheduled and confirmed?",
+    category: "Scheduling & Confirmations",
+    question: "How are jobs scheduled and confirmed with customers?",
     options: [
-      { text: "One person does it manually from memory, a notebook, or a spreadsheet", score: 10, flag: "critical" },
-      { text: "We use software, but only one person knows how to run it", score: 7, flag: "moderate" },
-      { text: "We use software and a few people can access it", score: 4, flag: "moderate" },
-      { text: "Customers can self-book online by picking a day and time", score: 2, flag: "low" },
-      { text: "Fully automated: online booking, auto-confirmations, and reminders", score: 1, flag: "low" },
+      { text: "One person does it manually from memory, a notebook, or a whiteboard", score: 10, flag: "critical" },
+      { text: "We use scheduling software, but only one person really knows how", score: 7, flag: "moderate" },
+      { text: "We use software and multiple people can access and update it", score: 3, flag: "low" },
+      { text: "Customers can self-book online by picking a time and day", score: 1, flag: "low" },
+      { text: "Jobs are scheduled in software, but confirmations and reminders are manual", score: 6, flag: "moderate" },
+      { text: "Fully automated: online booking, auto-confirmations, and reminders", score: 0, flag: "low" },
     ],
   },
   {
     id: "estimates",
     category: "Estimates & Quotes",
-    question: "After an estimate is created, what happens next?",
+    question: "What happens to estimates after a tech or owner creates them?",
     options: [
-      { text: "It sits until someone remembers to send it", score: 10, flag: "critical" },
-      { text: "One person follows up manually, usually days later", score: 8, flag: "critical" },
-      { text: "It goes out same day, but follow-up is hit or miss", score: 5, flag: "moderate" },
-      { text: "Sent same day with at least one follow-up attempt", score: 3, flag: "moderate" },
-      { text: "Estimates are sent and followed up on automatically with a sequence", score: 1, flag: "low" },
+      { text: "They sit until someone remembers to send them (sometimes days)", score: 10, flag: "critical" },
+      { text: "One person follows up manually, but it's slow and inconsistent", score: 8, flag: "critical" },
+      { text: "They go out same day, but nobody follows up if the customer doesn't respond", score: 5, flag: "moderate" },
+      { text: "They're sent from the field via an app, but follow-up depends on one person", score: 6, flag: "moderate" },
+      { text: "Estimates are sent and followed up automatically on a set schedule", score: 1, flag: "low" },
     ],
   },
   {
@@ -46,47 +47,47 @@ const questions = [
     category: "Customer Follow-Up",
     question: "After a job is complete, how do you follow up with customers?",
     options: [
-      { text: "We don't, honestly", score: 10, flag: "critical" },
-      { text: "Sometimes we call or text, depends on who remembers", score: 7, flag: "moderate" },
-      { text: "One person handles it, but it's inconsistent", score: 5, flag: "moderate" },
-      { text: "We send review requests but no other follow-up", score: 3, flag: "moderate" },
-      { text: "Automated sequence: thank you, review request, and periodic check-ins", score: 1, flag: "low" },
+      { text: "We don't, really", score: 10, flag: "critical" },
+      { text: "Sometimes we call or text, depends who remembers", score: 7, flag: "moderate" },
+      { text: "One person handles it, but it's hit or miss", score: 6, flag: "moderate" },
+      { text: "We send a review request manually after most jobs", score: 4, flag: "low" },
+      { text: "Automated: review request, thank you, and check-in all go out without anyone touching it", score: 1, flag: "low" },
     ],
   },
   {
     id: "documentation",
-    category: "Process Knowledge",
-    question: "If your office manager quit tomorrow, could someone else step in?",
+    category: "Process Documentation",
+    question: "If your office manager quit tomorrow, could someone step in and run the day?",
     options: [
-      { text: "No way. Everything is in their head", score: 10, flag: "critical" },
-      { text: "Partially. Some things are written down, most aren't", score: 7, flag: "moderate" },
-      { text: "We have some SOPs but they're outdated or incomplete", score: 5, flag: "moderate" },
-      { text: "Most processes are documented, but it would still take weeks to ramp up", score: 3, flag: "moderate" },
-      { text: "Yes. Our processes are documented, accessible, and someone else could start this week", score: 1, flag: "low" },
+      { text: "Absolutely not. Everything is in their head.", score: 10, flag: "critical" },
+      { text: "Some things are written down, but most of the critical stuff isn't", score: 7, flag: "moderate" },
+      { text: "We have some SOPs or checklists but they're outdated", score: 5, flag: "moderate" },
+      { text: "Most processes are documented. Someone could figure it out within a day or two.", score: 2, flag: "low" },
+      { text: "Yes. Our processes are documented, accessible, and another person is cross-trained.", score: 0, flag: "low" },
     ],
   },
   {
     id: "after_hours",
-    category: "After-Hours Response",
+    category: "After-Hours Coverage",
     question: "What happens when a customer calls outside business hours?",
     options: [
-      { text: "Voicemail. We call back next morning if we remember", score: 9, flag: "critical" },
-      { text: "It rings to my cell and I answer when I can", score: 7, flag: "moderate" },
+      { text: "Voicemail. We call back next morning... maybe.", score: 9, flag: "critical" },
+      { text: "Rings to my personal cell. I answer when I can.", score: 7, flag: "moderate" },
       { text: "We have an answering service, but they just take messages", score: 5, flag: "moderate" },
-      { text: "Customers can book online anytime, but calls still go to voicemail", score: 4, flag: "moderate" },
-      { text: "Calls are handled automatically or routed to on-call with full context", score: 1, flag: "low" },
+      { text: "An on-call person answers and can dispatch or book", score: 2, flag: "low" },
+      { text: "AI or automated system handles it: captures info, books, or routes to on-call", score: 1, flag: "low" },
     ],
   },
   {
     id: "data_access",
-    category: "Customer Data",
+    category: "Customer Data & CRM",
     question: "Where does your customer information live?",
     options: [
-      { text: "In someone's phone contacts, a notebook, or random spreadsheets", score: 10, flag: "critical" },
-      { text: "In a CRM or software, but only one person updates it", score: 6, flag: "moderate" },
-      { text: "In a CRM that the team uses, but data is messy or outdated", score: 4, flag: "moderate" },
-      { text: "Centralized system that's mostly up to date, multiple people use it", score: 2, flag: "low" },
-      { text: "Single source of truth that auto-updates from calls, bookings, and jobs", score: 1, flag: "low" },
+      { text: "In someone's phone, a notebook, or scattered spreadsheets", score: 10, flag: "critical" },
+      { text: "In a CRM, but only one person updates or really uses it", score: 6, flag: "moderate" },
+      { text: "In a CRM the team uses, but data entry is inconsistent", score: 4, flag: "moderate" },
+      { text: "Centralized system that everyone uses and keeps updated", score: 1, flag: "low" },
+      { text: "Integrated CRM that auto-updates from calls, jobs, and invoices", score: 0, flag: "low" },
     ],
   },
   {
@@ -105,31 +106,31 @@ const questions = [
 const recommendations = {
   phone_coverage: {
     title: "Phone Coverage",
-    rec: "Set up an AI voice agent or auto-attendant that answers every call, captures info, and books. No more calls hitting voicemail while you're on a job site.",
+    rec: "Set up an AI voice agent or auto-attendant that answers every call, captures caller info, and can book or route. No more calls hitting voicemail during jobs or after hours.",
   },
   scheduling: {
-    title: "Scheduling & Booking",
-    rec: "Implement online self-booking so customers pick their own time. Pair it with auto-confirmations and reminders. Removes the single-person dependency from your calendar.",
+    title: "Scheduling & Confirmations",
+    rec: "Move to a shared scheduling system with online self-booking, automated confirmations, and reminders. Remove the single-person dependency from your calendar entirely.",
   },
   estimates: {
     title: "Estimates & Quotes",
-    rec: "Automate estimate delivery and follow-up sequences. Every unsent estimate is cash on the table. A 2-day delay on follow-up costs you the job more often than you think.",
+    rec: "Automate estimate delivery and follow-up sequences. Every unsent or unfollowed estimate is cash left on the table. A 2-day delay costs you the job.",
   },
   followup: {
     title: "Customer Follow-Up",
-    rec: "Build an automated post-job sequence: thank you text, review request at 24 hours, maintenance check-in at 30 days. Runs without anyone remembering anything.",
+    rec: "Build an automated post-job sequence: thank you text, review request at 24 hours, check-in at 30 days. This runs without anyone remembering.",
   },
   documentation: {
-    title: "Process Knowledge",
-    rec: "Record your office manager's workflows this week. Screen recordings, checklists, anything. If it only lives in one brain, it's not a process. It's a risk you carry every day.",
+    title: "Process Documentation",
+    rec: "Record your office manager's workflows this week. Screen recordings, checklists, anything. If it only lives in one brain, it's not a process. It's a risk.",
   },
   after_hours: {
-    title: "After-Hours Response",
-    rec: "Implement AI call handling or smart routing for after-hours. The homeowner calling at 8pm books whoever answers first. That should be you, not your competitor.",
+    title: "After-Hours Coverage",
+    rec: "Implement AI call handling or smart routing for after-hours. The homeowner calling at 8pm is booking whoever answers first. That should be you.",
   },
   data_access: {
-    title: "Customer Data",
-    rec: "Consolidate everything into one CRM that auto-updates from every touchpoint. Notebooks, personal phones, and scattered spreadsheets are where customer relationships go to die.",
+    title: "Customer Data & CRM",
+    rec: "Consolidate everything into one CRM that the whole team touches and that auto-updates from your workflows. Notebooks and personal phones are where customer relationships go to die.",
   },
 };
 
@@ -140,7 +141,20 @@ const riskTiers = [
   { max: 100, tier: "Critical Risk", color: "#ef4444", bg: "#450a0a", desc: "Your business runs on hope and one person's memory. Fix this now." },
 ];
 
-export default function OperationsFragilityAudit() {
+function Logo() {
+  return (
+    <div id="logo-wrap" style={{ marginBottom: 32, opacity: 0.7 }}>
+      <img
+        src="/logo.png"
+        alt="Compound Systems"
+        style={{ height: 22, width: "auto", filter: "brightness(0.9)", display: "block" }}
+        onError={(e) => { e.target.parentElement.style.display = "none"; }}
+      />
+    </div>
+  );
+}
+
+export default function App() {
   const [screen, setScreen] = useState("welcome");
   const [currentQ, setCurrentQ] = useState(0);
   const [answers, setAnswers] = useState({});
@@ -150,14 +164,14 @@ export default function OperationsFragilityAudit() {
   const [company, setCompany] = useState("");
   const [submitted, setSubmitted] = useState(false);
   const [fadeIn, setFadeIn] = useState(true);
-  const [sending, setSending] = useState(false);
+  const resultsRef = useRef(null);
 
   const transition = (callback) => {
     setFadeIn(false);
     setTimeout(() => {
       callback();
       setFadeIn(true);
-    }, 250);
+    }, 300);
   };
 
   const handleAnswer = (optionIndex) => {
@@ -176,7 +190,7 @@ export default function OperationsFragilityAudit() {
           setScreen("teaser");
         }
       });
-    }, 350);
+    }, 400);
   };
 
   const calculateResults = () => {
@@ -207,7 +221,9 @@ export default function OperationsFragilityAudit() {
 
   const handleSubmit = async () => {
     if (!email) return;
-    setSending(true);
+    setSubmitted(true);
+    setScreen("results");
+
     const results = calculateResults();
     try {
       await fetch(WEBHOOK_URL, {
@@ -229,27 +245,12 @@ export default function OperationsFragilityAudit() {
         }),
       });
     } catch (e) {
-      console.log("Webhook pending setup");
+      console.log("Webhook not configured yet");
     }
-    setSending(false);
-    setSubmitted(true);
-    setScreen("results");
   };
 
   const results = screen === "results" || screen === "teaser" ? calculateResults() : null;
   const progress = ((currentQ + 1) / questions.length) * 100;
-
-  const inputStyle = {
-    background: "#161616",
-    border: "1px solid #262626",
-    color: "#fff",
-    padding: "14px 16px",
-    fontSize: 15,
-    fontFamily: "'DM Sans', sans-serif",
-    outline: "none",
-    width: "100%",
-    boxSizing: "border-box",
-  };
 
   return (
     <div style={{
@@ -260,32 +261,23 @@ export default function OperationsFragilityAudit() {
       position: "relative",
       overflow: "hidden",
     }}>
-      <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
-
       <div style={{
         position: "fixed", inset: 0, opacity: 0.03,
         backgroundImage: "linear-gradient(#fff 1px, transparent 1px), linear-gradient(90deg, #fff 1px, transparent 1px)",
         backgroundSize: "60px 60px", pointerEvents: "none",
       }} />
 
-      {/* Logo - small, top left */}
       <div style={{
-        position: "fixed", top: 20, left: 24, zIndex: 10,
-        opacity: 0.7,
-      }}>
-        <img src={LOGO_SRC} alt="Compound Systems" style={{ height: 22 }} />
-      </div>
-
-      <div style={{
-        maxWidth: 640, margin: "0 auto", padding: "60px 20px 40px",
+        maxWidth: 640, margin: "0 auto", padding: "40px 20px",
         position: "relative", zIndex: 1,
         opacity: fadeIn ? 1 : 0,
-        transition: "opacity 0.25s ease",
+        transition: "opacity 0.3s ease",
       }}>
 
         {/* WELCOME */}
         {screen === "welcome" && (
           <div>
+            <Logo />
             <div style={{
               fontFamily: "'Space Mono', monospace", fontSize: 11, letterSpacing: 3,
               color: "#f97316", textTransform: "uppercase", marginBottom: 24,
@@ -294,25 +286,25 @@ export default function OperationsFragilityAudit() {
             </div>
 
             <h1 style={{
-              fontSize: "clamp(28px, 5vw, 40px)", fontWeight: 700, lineHeight: 1.15,
+              fontSize: "clamp(28px, 5vw, 42px)", fontWeight: 700, lineHeight: 1.15,
               color: "#fff", margin: "0 0 20px 0",
             }}>
               How fragile is your business?
             </h1>
 
-            <p style={{ fontSize: 16, lineHeight: 1.7, color: "#a3a3a3", margin: "0 0 12px 0" }}>
-              Most home services companies are one sick day away from chaos. They just don't know it yet.
+            <p style={{ fontSize: 17, lineHeight: 1.7, color: "#a3a3a3", margin: "0 0 16px 0" }}>
+              Most home services companies are one sick day away from operational chaos. They just don't know it yet.
             </p>
 
-            <p style={{ fontSize: 16, lineHeight: 1.7, color: "#a3a3a3", margin: "0 0 32px 0" }}>
-              This audit scores your operational fragility, estimates monthly revenue at risk, and shows you exactly where automation fits.
+            <p style={{ fontSize: 17, lineHeight: 1.7, color: "#a3a3a3", margin: "0 0 32px 0" }}>
+              This audit scores your operational fragility, estimates how much revenue you're leaving on the table every month, and shows you exactly where automation fits.
             </p>
 
             <div style={{
               display: "flex", gap: 24, marginBottom: 40, flexWrap: "wrap",
             }}>
               {[
-                { num: "7", label: "Questions" },
+                { num: "8", label: "Questions" },
                 { num: "3", label: "Minutes" },
                 { num: "$$$", label: "At Stake" },
               ].map((item, i) => (
@@ -360,7 +352,7 @@ export default function OperationsFragilityAudit() {
             </div>
 
             <h2 style={{
-              fontSize: "clamp(19px, 4vw, 24px)", fontWeight: 700, lineHeight: 1.35,
+              fontSize: "clamp(18px, 4vw, 24px)", fontWeight: 700, lineHeight: 1.35,
               color: "#fff", margin: "0 0 28px 0",
             }}>
               {questions[currentQ].question}
@@ -375,7 +367,7 @@ export default function OperationsFragilityAudit() {
                     background: selected === i ? "#f9731620" : "#161616",
                     border: selected === i ? "1px solid #f97316" : "1px solid #262626",
                     color: "#e5e5e5",
-                    padding: "16px 18px",
+                    padding: "14px 16px",
                     fontSize: 14,
                     textAlign: "left",
                     cursor: "pointer",
@@ -400,12 +392,37 @@ export default function OperationsFragilityAudit() {
                 </button>
               ))}
             </div>
+
+            {currentQ > 0 && (
+              <button
+                onClick={() => transition(() => {
+                  setSelected(null);
+                  setCurrentQ(currentQ - 1);
+                })}
+                style={{
+                  background: "transparent",
+                  border: "none",
+                  color: "#737373",
+                  fontSize: 13,
+                  cursor: "pointer",
+                  fontFamily: "'DM Sans', sans-serif",
+                  marginTop: 20,
+                  padding: "8px 0",
+                  transition: "color 0.2s",
+                }}
+                onMouseOver={(e) => e.target.style.color = "#a3a3a3"}
+                onMouseOut={(e) => e.target.style.color = "#737373"}
+              >
+                ← Back
+              </button>
+            )}
           </div>
         )}
 
         {/* TEASER */}
         {screen === "teaser" && results && (
           <div>
+            <Logo />
             <div style={{
               fontFamily: "'Space Mono', monospace", fontSize: 11, letterSpacing: 3,
               color: "#f97316", textTransform: "uppercase", marginBottom: 24,
@@ -415,9 +432,9 @@ export default function OperationsFragilityAudit() {
 
             <div style={{
               background: "#161616", border: "1px solid #262626",
-              padding: 28, marginBottom: 28,
+              padding: 32, marginBottom: 32,
             }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 16 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 20 }}>
                 <div style={{
                   fontFamily: "'Space Mono', monospace", fontSize: 48, fontWeight: 700,
                   color: results.tier.color,
@@ -433,27 +450,26 @@ export default function OperationsFragilityAudit() {
               </div>
 
               <div style={{
-                height: 4, background: "#262626", width: "100%", marginBottom: 16,
+                height: 6, background: "#262626", width: "100%", marginBottom: 20,
                 overflow: "hidden",
               }}>
                 <div style={{
                   height: "100%",
                   width: `${results.normalized}%`,
-                  background: `linear-gradient(90deg, #22c55e, #eab308, #f97316, #ef4444)`,
+                  background: "linear-gradient(90deg, #22c55e, #eab308, #f97316, #ef4444)",
                   transition: "width 1s ease",
                 }} />
               </div>
 
-              <p style={{ fontSize: 14, color: "#a3a3a3", lineHeight: 1.6, margin: 0 }}>
+              <p style={{ fontSize: 15, color: "#a3a3a3", lineHeight: 1.6, margin: 0 }}>
                 {results.tier.desc}
               </p>
             </div>
 
-            {/* Blurred preview */}
-            <div style={{ position: "relative", marginBottom: 28 }}>
+            <div style={{ position: "relative", marginBottom: 32 }}>
               <div style={{ filter: "blur(6px)", opacity: 0.4, pointerEvents: "none" }}>
-                <div style={{ background: "#161616", padding: 24, marginBottom: 10 }}>
-                  <div style={{ fontSize: 15, fontWeight: 700, color: "#fff", marginBottom: 6 }}>
+                <div style={{ background: "#161616", padding: 24, marginBottom: 12 }}>
+                  <div style={{ fontSize: 16, fontWeight: 700, color: "#fff", marginBottom: 8 }}>
                     Estimated Monthly Revenue at Risk
                   </div>
                   <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 36, color: "#ef4444" }}>
@@ -461,11 +477,11 @@ export default function OperationsFragilityAudit() {
                   </div>
                 </div>
                 <div style={{ background: "#161616", padding: 24 }}>
-                  <div style={{ fontSize: 15, fontWeight: 700, color: "#fff", marginBottom: 6 }}>
+                  <div style={{ fontSize: 16, fontWeight: 700, color: "#fff", marginBottom: 8 }}>
                     Top Recommendations
                   </div>
-                  <div style={{ color: "#a3a3a3", fontSize: 13 }}>
-                    Based on your answers, here are the highest-impact changes...
+                  <div style={{ color: "#a3a3a3", fontSize: 14 }}>
+                    Based on your answers, here are the 3 highest-impact changes...
                   </div>
                 </div>
               </div>
@@ -474,45 +490,72 @@ export default function OperationsFragilityAudit() {
                 display: "flex", alignItems: "center", justifyContent: "center",
               }}>
                 <div style={{
-                  background: "#0a0a0aee", border: "1px solid #f97316",
-                  padding: "14px 22px", textAlign: "center",
+                  background: "#0a0a0a", border: "1px solid #f97316",
+                  padding: "16px 24px", textAlign: "center",
                 }}>
-                  <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 11, color: "#f97316", letterSpacing: 1 }}>
+                  <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 12, color: "#f97316", letterSpacing: 1 }}>
                     ENTER YOUR EMAIL TO UNLOCK FULL RESULTS
                   </span>
                 </div>
               </div>
             </div>
 
-            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-              <input type="text" placeholder="Your name" value={name}
-                onChange={(e) => setName(e.target.value)} style={inputStyle}
+            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+              <input
+                type="text"
+                placeholder="Your name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                style={{
+                  background: "#161616", border: "1px solid #262626", color: "#fff",
+                  padding: "14px 16px", fontSize: 15, fontFamily: "'DM Sans', sans-serif",
+                  outline: "none",
+                }}
                 onFocus={(e) => e.target.style.borderColor = "#f97316"}
-                onBlur={(e) => e.target.style.borderColor = "#262626"} />
-              <input type="text" placeholder="Company name" value={company}
-                onChange={(e) => setCompany(e.target.value)} style={inputStyle}
+                onBlur={(e) => e.target.style.borderColor = "#262626"}
+              />
+              <input
+                type="text"
+                placeholder="Company name"
+                value={company}
+                onChange={(e) => setCompany(e.target.value)}
+                style={{
+                  background: "#161616", border: "1px solid #262626", color: "#fff",
+                  padding: "14px 16px", fontSize: 15, fontFamily: "'DM Sans', sans-serif",
+                  outline: "none",
+                }}
                 onFocus={(e) => e.target.style.borderColor = "#f97316"}
-                onBlur={(e) => e.target.style.borderColor = "#262626"} />
-              <input type="email" placeholder="Your email" value={email}
-                onChange={(e) => setEmail(e.target.value)} style={inputStyle}
+                onBlur={(e) => e.target.style.borderColor = "#262626"}
+              />
+              <input
+                type="email"
+                placeholder="Your email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                style={{
+                  background: "#161616", border: "1px solid #262626", color: "#fff",
+                  padding: "14px 16px", fontSize: 15, fontFamily: "'DM Sans', sans-serif",
+                  outline: "none",
+                }}
                 onFocus={(e) => e.target.style.borderColor = "#f97316"}
-                onBlur={(e) => e.target.style.borderColor = "#262626"} />
+                onBlur={(e) => e.target.style.borderColor = "#262626"}
+              />
               <button
                 onClick={handleSubmit}
-                disabled={!email || sending}
+                disabled={!email}
                 style={{
                   background: email ? "#f97316" : "#404040",
                   color: email ? "#0a0a0a" : "#737373",
                   border: "none", padding: "16px 40px", fontSize: 16, fontWeight: 700,
                   cursor: email ? "pointer" : "not-allowed",
                   fontFamily: "'DM Sans', sans-serif",
-                  transition: "all 0.2s", opacity: sending ? 0.7 : 1,
+                  transition: "all 0.2s",
                 }}
               >
-                {sending ? "Unlocking..." : "Unlock My Full Results"}
+                Unlock My Full Results
               </button>
-              <p style={{ fontSize: 11, color: "#525252", margin: "2px 0 0 0" }}>
-                No spam. Just your results and a few tips to fix what's broken.
+              <p style={{ fontSize: 12, color: "#525252", margin: "4px 0 0 0" }}>
+                No spam. Just your audit results and a few tips to fix what's broken.
               </p>
             </div>
           </div>
@@ -520,7 +563,8 @@ export default function OperationsFragilityAudit() {
 
         {/* FULL RESULTS */}
         {screen === "results" && results && (
-          <div>
+          <div ref={resultsRef}>
+            <Logo />
             <div style={{
               fontFamily: "'Space Mono', monospace", fontSize: 11, letterSpacing: 3,
               color: "#f97316", textTransform: "uppercase", marginBottom: 24,
@@ -530,75 +574,75 @@ export default function OperationsFragilityAudit() {
 
             <div style={{
               background: "#161616", border: "1px solid #262626",
-              padding: 28, marginBottom: 20,
+              padding: 32, marginBottom: 24,
             }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 14 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 16 }}>
                 <div style={{
-                  fontFamily: "'Space Mono', monospace", fontSize: 52, fontWeight: 700,
+                  fontFamily: "'Space Mono', monospace", fontSize: 56, fontWeight: 700,
                   color: results.tier.color,
                 }}>
                   {results.normalized}
                 </div>
                 <div>
-                  <div style={{ fontSize: 19, fontWeight: 700, color: results.tier.color }}>
+                  <div style={{ fontSize: 20, fontWeight: 700, color: results.tier.color }}>
                     {results.tier.tier}
                   </div>
                   <div style={{ fontSize: 13, color: "#737373" }}>Fragility Score out of 100</div>
                 </div>
               </div>
               <div style={{
-                height: 4, background: "#262626", width: "100%", marginBottom: 14,
+                height: 6, background: "#262626", width: "100%", marginBottom: 16,
                 overflow: "hidden",
               }}>
                 <div style={{
                   height: "100%", width: `${results.normalized}%`,
-                  background: `linear-gradient(90deg, #22c55e, #eab308, #f97316, #ef4444)`,
+                  background: "linear-gradient(90deg, #22c55e, #eab308, #f97316, #ef4444)",
                 }} />
               </div>
-              <p style={{ fontSize: 14, color: "#a3a3a3", lineHeight: 1.6, margin: 0 }}>
+              <p style={{ fontSize: 15, color: "#a3a3a3", lineHeight: 1.6, margin: 0 }}>
                 {results.tier.desc}
               </p>
             </div>
 
             <div style={{
               background: results.tier.bg, border: `1px solid ${results.tier.color}30`,
-              padding: 28, marginBottom: 20,
+              padding: 32, marginBottom: 24,
             }}>
-              <div style={{ fontSize: 13, color: "#a3a3a3", marginBottom: 6, fontWeight: 500 }}>
+              <div style={{ fontSize: 14, color: "#a3a3a3", marginBottom: 8, fontWeight: 500 }}>
                 Estimated Monthly Revenue at Risk
               </div>
               <div style={{
-                fontFamily: "'Space Mono', monospace", fontSize: "clamp(30px, 6vw, 44px)",
-                fontWeight: 700, color: results.tier.color, marginBottom: 10,
+                fontFamily: "'Space Mono', monospace", fontSize: "clamp(32px, 6vw, 48px)",
+                fontWeight: 700, color: results.tier.color, marginBottom: 12,
               }}>
                 ${results.estimatedLoss.toLocaleString()}/mo
               </div>
               <div style={{ fontSize: 13, color: "#737373", lineHeight: 1.6 }}>
-                Roughly ${(results.estimatedLoss * 12).toLocaleString()}/year leaking through operational gaps. Based on your answers and company size.
+                That's roughly ${(results.estimatedLoss * 12).toLocaleString()}/year in revenue leaking through operational gaps. Based on your answers and company size.
               </div>
             </div>
 
             {results.criticalCount > 0 && (
               <div style={{
                 background: "#161616", border: "1px solid #262626",
-                padding: 22, marginBottom: 20,
+                padding: 24, marginBottom: 24,
               }}>
                 <div style={{
                   fontFamily: "'Space Mono', monospace", fontSize: 11, letterSpacing: 2,
-                  color: "#ef4444", textTransform: "uppercase", marginBottom: 12,
+                  color: "#ef4444", textTransform: "uppercase", marginBottom: 16,
                 }}>
                   {results.criticalCount} Critical Vulnerabilit{results.criticalCount === 1 ? "y" : "ies"} Found
                 </div>
-                <p style={{ fontSize: 13, color: "#a3a3a3", lineHeight: 1.6, margin: 0 }}>
-                  These are areas where a single disruption could directly impact revenue or customer experience within 24 hours.
+                <p style={{ fontSize: 14, color: "#a3a3a3", lineHeight: 1.6, margin: 0 }}>
+                  These are areas where a single disruption (someone out sick, quitting, or overwhelmed) could directly impact revenue or customer experience within 24 hours.
                 </p>
               </div>
             )}
 
-            <div style={{ marginBottom: 28 }}>
+            <div style={{ marginBottom: 32 }}>
               <div style={{
                 fontFamily: "'Space Mono', monospace", fontSize: 11, letterSpacing: 3,
-                color: "#f97316", textTransform: "uppercase", marginBottom: 18,
+                color: "#f97316", textTransform: "uppercase", marginBottom: 20,
               }}>
                 What To Fix First
               </div>
@@ -606,20 +650,20 @@ export default function OperationsFragilityAudit() {
               {results.weakAreas.slice(0, 3).map((areaId, i) => (
                 <div key={areaId} style={{
                   background: "#161616", border: "1px solid #262626",
-                  padding: 22, marginBottom: 10,
+                  padding: 24, marginBottom: 12,
                 }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 10 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 12 }}>
                     <span style={{
                       fontFamily: "'Space Mono', monospace", fontSize: 12,
                       color: "#f97316", fontWeight: 700,
                     }}>
                       0{i + 1}
                     </span>
-                    <span style={{ fontSize: 15, fontWeight: 700, color: "#fff" }}>
+                    <span style={{ fontSize: 16, fontWeight: 700, color: "#fff" }}>
                       {recommendations[areaId]?.title}
                     </span>
                   </div>
-                  <p style={{ fontSize: 13, color: "#a3a3a3", lineHeight: 1.7, margin: 0 }}>
+                  <p style={{ fontSize: 14, color: "#a3a3a3", lineHeight: 1.7, margin: 0 }}>
                     {recommendations[areaId]?.rec}
                   </p>
                 </div>
@@ -628,25 +672,41 @@ export default function OperationsFragilityAudit() {
 
             <div style={{
               background: "#161616", border: "1px solid #f97316",
-              padding: 28, textAlign: "center",
+              padding: 32, textAlign: "center",
             }}>
-              <h3 style={{ fontSize: 18, fontWeight: 700, color: "#fff", margin: "0 0 10px 0" }}>
+              <h3 style={{ fontSize: 20, fontWeight: 700, color: "#fff", margin: "0 0 12px 0" }}>
                 Want help fixing this?
               </h3>
-              <p style={{ fontSize: 14, color: "#a3a3a3", lineHeight: 1.6, margin: "0 0 16px 0" }}>
-                I help home services companies automate the exact gaps this audit found. No fluff. Just systems that work when your people can't.
+              <p style={{ fontSize: 15, color: "#a3a3a3", lineHeight: 1.6, margin: "0 0 24px 0" }}>
+                I help home services companies automate the exact gaps this audit identified. No fluff. Just systems that work when your people can't.
               </p>
+              <a
+                href="https://app.reclaim.ai/m/compoundsystems/quick-discovery"
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  display: "inline-block",
+                  background: "#f97316",
+                  color: "#0a0a0a",
+                  border: "none",
+                  padding: "16px 36px",
+                  fontSize: 16,
+                  fontWeight: 700,
+                  textDecoration: "none",
+                  fontFamily: "'DM Sans', sans-serif",
+                  transition: "all 0.2s",
+                  letterSpacing: 0.5,
+                }}
+                onMouseOver={(e) => e.target.style.background = "#fb923c"}
+                onMouseOut={(e) => e.target.style.background = "#f97316"}
+              >
+                Schedule a Free Discovery Call
+              </a>
               <p style={{
-                fontFamily: "'Space Mono', monospace", fontSize: 12,
-                color: "#f97316", letterSpacing: 1, margin: 0,
+                fontSize: 12, color: "#525252", margin: "16px 0 0 0",
               }}>
-                DM me on LinkedIn or reply to the email with your results.
+                15 minutes. No pitch. Just a look at what's fixable.
               </p>
-            </div>
-
-            {/* Footer logo */}
-            <div style={{ textAlign: "center", marginTop: 40, opacity: 0.4 }}>
-              <img src={LOGO_SRC} alt="Compound Systems" style={{ height: 18 }} />
             </div>
           </div>
         )}
