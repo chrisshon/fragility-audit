@@ -393,6 +393,30 @@ export default function AuditPage() {
                 </button>
               ))}
             </div>
+
+            {currentQ > 0 && (
+              <button
+                onClick={() => transition(() => {
+                  setSelected(null);
+                  setCurrentQ(currentQ - 1);
+                })}
+                style={{
+                  background: "transparent",
+                  border: "none",
+                  color: "#737373",
+                  fontSize: 13,
+                  cursor: "pointer",
+                  fontFamily: "'DM Sans', sans-serif",
+                  marginTop: 20,
+                  padding: "8px 0",
+                  transition: "color 0.2s",
+                }}
+                onMouseOver={(e) => e.target.style.color = "#a3a3a3"}
+                onMouseOut={(e) => e.target.style.color = "#737373"}
+              >
+                ← Back
+              </button>
+            )}
           </div>
         )}
 
@@ -654,14 +678,35 @@ export default function AuditPage() {
               <h3 style={{ fontSize: 20, fontWeight: 700, color: "#fff", margin: "0 0 12px 0" }}>
                 Want help fixing this?
               </h3>
-              <p style={{ fontSize: 15, color: "#a3a3a3", lineHeight: 1.6, margin: "0 0 20px 0" }}>
+              <p style={{ fontSize: 15, color: "#a3a3a3", lineHeight: 1.6, margin: "0 0 24px 0" }}>
                 I help home services companies automate the exact gaps this audit identified. No fluff. Just systems that work when your people can't.
               </p>
+              <a
+                href="https://app.reclaim.ai/m/compoundsystems/quick-discovery"
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  display: "inline-block",
+                  background: "#f97316",
+                  color: "#0a0a0a",
+                  border: "none",
+                  padding: "16px 36px",
+                  fontSize: 16,
+                  fontWeight: 700,
+                  textDecoration: "none",
+                  fontFamily: "'DM Sans', sans-serif",
+                  transition: "all 0.2s",
+                  letterSpacing: 0.5,
+                }}
+                onMouseOver={(e) => e.target.style.background = "#fb923c"}
+                onMouseOut={(e) => e.target.style.background = "#f97316"}
+              >
+                Schedule a Free Discovery Call
+              </a>
               <p style={{
-                fontFamily: "'Space Mono', monospace", fontSize: 13,
-                color: "#f97316", letterSpacing: 1,
+                fontSize: 12, color: "#525252", margin: "16px 0 0 0",
               }}>
-                DM me on LinkedIn or reply to the email with your results.
+                15 minutes. No pitch. Just a look at what's fixable.
               </p>
             </div>
           </div>
