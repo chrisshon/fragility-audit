@@ -261,6 +261,15 @@ export default function App() {
       position: "relative",
       overflow: "hidden",
     }}>
+      <style>{`
+        @font-face {
+          font-family: 'Nulshock';
+          src: url('/nulshock-regular.otf') format('opentype');
+          font-weight: normal;
+          font-style: normal;
+          font-display: swap;
+        }
+      `}</style>
       <div style={{
         position: "fixed", inset: 0, opacity: 0.03,
         backgroundImage: "linear-gradient(#fff 1px, transparent 1px), linear-gradient(90deg, #fff 1px, transparent 1px)",
@@ -288,6 +297,7 @@ export default function App() {
             <h1 style={{
               fontSize: "clamp(28px, 5vw, 42px)", fontWeight: 700, lineHeight: 1.15,
               color: "#fff", margin: "0 0 20px 0",
+              fontFamily: "'Nulshock', 'DM Sans', sans-serif",
             }}>
               How fragile is your business?
             </h1>
@@ -354,6 +364,7 @@ export default function App() {
             <h2 style={{
               fontSize: "clamp(18px, 4vw, 24px)", fontWeight: 700, lineHeight: 1.35,
               color: "#fff", margin: "0 0 28px 0",
+              fontFamily: "'Nulshock', 'DM Sans', sans-serif",
             }}>
               {questions[currentQ].question}
             </h2>
@@ -442,7 +453,7 @@ export default function App() {
                   {results.normalized}
                 </div>
                 <div>
-                  <div style={{ fontSize: 18, fontWeight: 700, color: results.tier.color }}>
+                  <div style={{ fontSize: 18, fontWeight: 700, color: results.tier.color, fontFamily: "'Nulshock', 'DM Sans', sans-serif" }}>
                     {results.tier.tier}
                   </div>
                   <div style={{ fontSize: 13, color: "#737373" }}>Fragility Score out of 100</div>
@@ -584,7 +595,7 @@ export default function App() {
                   {results.normalized}
                 </div>
                 <div>
-                  <div style={{ fontSize: 20, fontWeight: 700, color: results.tier.color }}>
+                  <div style={{ fontSize: 20, fontWeight: 700, color: results.tier.color, fontFamily: "'Nulshock', 'DM Sans', sans-serif" }}>
                     {results.tier.tier}
                   </div>
                   <div style={{ fontSize: 13, color: "#737373" }}>Fragility Score out of 100</div>
@@ -674,7 +685,7 @@ export default function App() {
               background: "#161616", border: "1px solid #f97316",
               padding: 32, textAlign: "center",
             }}>
-              <h3 style={{ fontSize: 20, fontWeight: 700, color: "#fff", margin: "0 0 12px 0" }}>
+              <h3 style={{ fontSize: 20, fontWeight: 700, color: "#fff", margin: "0 0 12px 0", fontFamily: "'Nulshock', 'DM Sans', sans-serif" }}>
                 Want help fixing this?
               </h3>
               <p style={{ fontSize: 15, color: "#a3a3a3", lineHeight: 1.6, margin: "0 0 24px 0" }}>
