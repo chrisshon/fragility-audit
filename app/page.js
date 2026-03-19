@@ -144,12 +144,12 @@ const riskTiers = [
 
 function Logo() {
   return (
-    <div style={{ marginBottom: 32, opacity: 0.7 }}>
+    <div id="logo-wrap" style={{ marginBottom: 32, opacity: 0.7 }}>
       <img
         src="/logo.png"
         alt="Compound Systems"
-        style={{ height: 22, width: "auto", filter: "brightness(0.9)" }}
-        onError={(e) => { e.target.style.display = "none"; }}
+        style={{ height: 22, width: "auto", filter: "brightness(0.9)", display: "block" }}
+        onError={(e) => { e.target.parentElement.style.display = "none"; }}
       />
     </div>
   );
