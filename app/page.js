@@ -2,7 +2,7 @@
 
 import { useState, useRef } from "react";
 
-const WEBHOOK_URL = process.env.NEXT_PUBLIC_WEBHOOK_URL || "YOUR_N8N_WEBHOOK_URL_HERE";
+const WEBHOOK_URL = process.env.NEXT_PUBLIC_WEBHOOK_URL || "https://n8n.usecompound.ai/webhook/fragility-audit";
 
 const questions = [
   {
