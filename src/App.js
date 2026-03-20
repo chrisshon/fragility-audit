@@ -351,7 +351,7 @@ export default function App() {
             <h1 style={{
               fontSize: "clamp(28px, 5vw, 42px)", fontWeight: 700, lineHeight: 1.15,
               color: C.textDark, margin: "0 0 20px 0",
-              fontFamily: "'Nulshock', 'DM Sans', sans-serif",
+              fontFamily: "'Nulshock', 'DM Sans', sans-serif", letterSpacing: "0.04em",
             }}>
               How fragile is your business?
             </h1>
@@ -430,7 +430,7 @@ export default function App() {
             <h2 style={{
               fontSize: "clamp(18px, 4vw, 24px)", fontWeight: 700, lineHeight: 1.35,
               color: C.textDark, margin: "0 0 28px 0",
-              fontFamily: "'Nulshock', 'DM Sans', sans-serif",
+              fontFamily: "'DM Sans', sans-serif",
             }}>
               {questions[currentQ].question}
             </h2>
@@ -517,7 +517,7 @@ export default function App() {
                 <div>
                   <div style={{
                     fontSize: 18, fontWeight: 700, color: results.tier.color,
-                    fontFamily: "'Nulshock', 'DM Sans', sans-serif",
+                    fontFamily: "'Nulshock', 'DM Sans', sans-serif", letterSpacing: "0.04em",
                   }}>
                     {results.tier.tier}
                   </div>
@@ -651,7 +651,7 @@ export default function App() {
                 <div>
                   <div style={{
                     fontSize: 20, fontWeight: 700, color: results.tier.color,
-                    fontFamily: "'Nulshock', 'DM Sans', sans-serif",
+                    fontFamily: "'Nulshock', 'DM Sans', sans-serif", letterSpacing: "0.04em",
                   }}>
                     {results.tier.tier}
                   </div>
@@ -679,13 +679,13 @@ export default function App() {
               borderRadius: 12,
               padding: 32, marginBottom: 24,
             }}>
-              <div style={{ fontSize: 14, color: C.muted, marginBottom: 8, fontWeight: 500 }}>
+              <div style={{ fontSize: 16, fontWeight: 700, color: C.textDark, marginBottom: 8 }}>
                 Estimated Monthly Revenue at Risk
               </div>
               <div style={{
                 fontFamily: "'JetBrains Mono', 'Space Mono', monospace",
                 fontSize: "clamp(32px, 6vw, 48px)",
-                fontWeight: 700, color: results.tier.color, marginBottom: 12,
+                fontWeight: 700, color: "#C43B2E", marginBottom: 12,
               }}>
                 ${results.estimatedLoss.toLocaleString()}/mo
               </div>
@@ -755,7 +755,7 @@ export default function App() {
               <h3 style={{
                 fontSize: 20, fontWeight: 700, color: C.textDark,
                 margin: "0 0 12px 0",
-                fontFamily: "'Nulshock', 'DM Sans', sans-serif",
+                fontFamily: "'Nulshock', 'DM Sans', sans-serif", letterSpacing: "0.04em",
               }}>
                 Want help fixing this?
               </h3>
