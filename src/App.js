@@ -3,6 +3,26 @@ import { useState, useRef } from "react";
 
 const WEBHOOK_URL = "https://n8n.usecompound.ai/webhook/fragility-audit";
 
+/* ── C3 Still Water Palette ── */
+const C = {
+  primary: "#004C4C",
+  secondary: "#8A9E9B",
+  brass: "#BFA55B",
+  verdigris: "#2E8A7A",
+  verdigrisLight: "#7ECEBE",
+  bgLight: "#F4F2ED",
+  bgDark: "#0C1C1C",
+  surfaceDark: "#132626",
+  textPrimary: "#1A1D1C",
+  textDark: "#DDD9D0",
+  muted: "#8A9E9B",
+  borderDark: "rgba(221, 217, 208, 0.12)",
+  borderDarkHover: "rgba(221, 217, 208, 0.22)",
+  tealWash: "rgba(0, 76, 76, 0.15)",
+  verdigrisWash: "rgba(46, 138, 122, 0.12)",
+  brassWash: "rgba(191, 165, 91, 0.10)",
+};
+
 const questions = [
   {
     id: "phone_coverage",
@@ -135,19 +155,19 @@ const recommendations = {
 };
 
 const riskTiers = [
-  { max: 20, tier: "Low Risk", color: "#22c55e", bg: "#052e16", desc: "Your operations have solid redundancy. Keep refining." },
-  { max: 40, tier: "Moderate Risk", color: "#eab308", bg: "#422006", desc: "Some gaps that could hurt you on a bad week. Fixable." },
-  { max: 60, tier: "High Risk", color: "#f97316", bg: "#431407", desc: "Significant fragility. One sick day away from chaos." },
-  { max: 100, tier: "Critical Risk", color: "#ef4444", bg: "#450a0a", desc: "Your business runs on hope and one person's memory. Fix this now." },
+  { max: 20, tier: "Low Risk", color: C.verdigris, bg: "rgba(46, 138, 122, 0.08)", desc: "Your operations have solid redundancy. Keep refining." },
+  { max: 40, tier: "Moderate Risk", color: C.brass, bg: C.brassWash, desc: "Some gaps that could hurt you on a bad week. Fixable." },
+  { max: 60, tier: "High Risk", color: "#D4622B", bg: "rgba(212, 98, 43, 0.08)", desc: "Significant fragility. One sick day away from chaos." },
+  { max: 100, tier: "Critical Risk", color: "#C43B2E", bg: "rgba(196, 59, 46, 0.08)", desc: "Your business runs on hope and one person's memory. Fix this now." },
 ];
 
 function Logo() {
   return (
-    <div id="logo-wrap" style={{ marginBottom: 32, opacity: 0.7 }}>
+    <div id="logo-wrap" style={{ marginBottom: 32, opacity: 0.85 }}>
       <img
         src="/logo.png"
         alt="Compound Systems"
-        style={{ height: 22, width: "auto", filter: "brightness(0.9)", display: "block" }}
+        style={{ height: 22, width: "auto", display: "block" }}
         onError={(e) => { e.target.parentElement.style.display = "none"; }}
       />
     </div>
@@ -252,16 +272,47 @@ export default function App() {
   const results = screen === "results" || screen === "teaser" ? calculateResults() : null;
   const progress = ((currentQ + 1) / questions.length) * 100;
 
+  /* Shared styles */
+  const overline = {
+    fontFamily: "'JetBrains Mono', 'Space Mono', monospace",
+    fontSize: 11,
+    letterSpacing: 3,
+    color: C.verdigrisLight,
+    textTransform: "uppercase",
+    marginBottom: 24,
+  };
+
+  const card = {
+    background: C.surfaceDark,
+    border: `1px solid ${C.borderDark}`,
+    borderRadius: 12,
+    padding: 32,
+    marginBottom: 24,
+  };
+
+  const inputBase = {
+    background: C.surfaceDark,
+    border: `1px solid ${C.borderDark}`,
+    borderRadius: 8,
+    color: C.textDark,
+    padding: "14px 16px",
+    fontSize: 15,
+    fontFamily: "'DM Sans', sans-serif",
+    outline: "none",
+    transition: "border-color 0.2s",
+  };
+
   return (
     <div style={{
       minHeight: "100vh",
-      background: "#0a0a0a",
-      color: "#e5e5e5",
+      background: C.bgDark,
+      color: C.textDark,
       fontFamily: "'DM Sans', 'Helvetica Neue', sans-serif",
       position: "relative",
       overflow: "hidden",
     }}>
       <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=JetBrains+Mono:wght@400;700&display=swap');
         @font-face {
           font-family: 'Nulshock';
           src: url('/nulshock-regular.otf') format('opentype');
@@ -269,10 +320,16 @@ export default function App() {
           font-style: normal;
           font-display: swap;
         }
+        ::selection {
+          background: ${C.verdigris};
+          color: ${C.bgLight};
+        }
       `}</style>
+
+      {/* Subtle grid overlay */}
       <div style={{
-        position: "fixed", inset: 0, opacity: 0.03,
-        backgroundImage: "linear-gradient(#fff 1px, transparent 1px), linear-gradient(90deg, #fff 1px, transparent 1px)",
+        position: "fixed", inset: 0, opacity: 0.02,
+        backgroundImage: `linear-gradient(${C.textDark} 1px, transparent 1px), linear-gradient(90deg, ${C.textDark} 1px, transparent 1px)`,
         backgroundSize: "60px 60px", pointerEvents: "none",
       }} />
 
@@ -287,26 +344,23 @@ export default function App() {
         {screen === "welcome" && (
           <div>
             <Logo />
-            <div style={{
-              fontFamily: "'Space Mono', monospace", fontSize: 11, letterSpacing: 3,
-              color: "#f97316", textTransform: "uppercase", marginBottom: 24,
-            }}>
+            <div style={overline}>
               Operations Fragility Audit
             </div>
 
             <h1 style={{
               fontSize: "clamp(28px, 5vw, 42px)", fontWeight: 700, lineHeight: 1.15,
-              color: "#fff", margin: "0 0 20px 0",
+              color: C.textDark, margin: "0 0 20px 0",
               fontFamily: "'Nulshock', 'DM Sans', sans-serif",
             }}>
               How fragile is your business?
             </h1>
 
-            <p style={{ fontSize: 17, lineHeight: 1.7, color: "#a3a3a3", margin: "0 0 16px 0" }}>
+            <p style={{ fontSize: 17, lineHeight: 1.7, color: C.muted, margin: "0 0 16px 0" }}>
               Most home services companies are one sick day away from operational chaos. They just don't know it yet.
             </p>
 
-            <p style={{ fontSize: 17, lineHeight: 1.7, color: "#a3a3a3", margin: "0 0 32px 0" }}>
+            <p style={{ fontSize: 17, lineHeight: 1.7, color: C.muted, margin: "0 0 32px 0" }}>
               This audit scores your operational fragility, estimates how much revenue you're leaving on the table every month, and shows you exactly where automation fits.
             </p>
 
@@ -319,8 +373,13 @@ export default function App() {
                 { num: "$$$", label: "At Stake" },
               ].map((item, i) => (
                 <div key={i} style={{ display: "flex", alignItems: "baseline", gap: 8 }}>
-                  <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 28, fontWeight: 700, color: "#f97316" }}>{item.num}</span>
-                  <span style={{ fontSize: 13, color: "#737373", textTransform: "uppercase", letterSpacing: 1 }}>{item.label}</span>
+                  <span style={{
+                    fontFamily: "'JetBrains Mono', 'Space Mono', monospace",
+                    fontSize: 28, fontWeight: 700, color: C.brass,
+                  }}>{item.num}</span>
+                  <span style={{
+                    fontSize: 13, color: C.secondary, textTransform: "uppercase", letterSpacing: 1,
+                  }}>{item.label}</span>
                 </div>
               ))}
             </div>
@@ -328,13 +387,14 @@ export default function App() {
             <button
               onClick={() => transition(() => setScreen("quiz"))}
               style={{
-                background: "#f97316", color: "#0a0a0a", border: "none",
+                background: C.brass, color: C.textPrimary, border: "none",
                 padding: "16px 40px", fontSize: 16, fontWeight: 700,
                 cursor: "pointer", fontFamily: "'DM Sans', sans-serif",
                 transition: "all 0.2s", letterSpacing: 0.5,
+                borderRadius: 8,
               }}
-              onMouseOver={(e) => e.target.style.background = "#fb923c"}
-              onMouseOut={(e) => e.target.style.background = "#f97316"}
+              onMouseOver={(e) => e.target.style.filter = "brightness(1.08)"}
+              onMouseOut={(e) => e.target.style.filter = "brightness(1)"}
             >
               Start the Audit
             </button>
@@ -346,24 +406,30 @@ export default function App() {
           <div>
             <div style={{ marginBottom: 40 }}>
               <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
-                <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 11, color: "#737373", letterSpacing: 2, textTransform: "uppercase" }}>
+                <span style={{
+                  fontFamily: "'JetBrains Mono', 'Space Mono', monospace",
+                  fontSize: 11, color: C.secondary, letterSpacing: 2, textTransform: "uppercase",
+                }}>
                   {questions[currentQ].category}
                 </span>
-                <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 11, color: "#737373" }}>
+                <span style={{
+                  fontFamily: "'JetBrains Mono', 'Space Mono', monospace",
+                  fontSize: 11, color: C.secondary,
+                }}>
                   {currentQ + 1}/{questions.length}
                 </span>
               </div>
-              <div style={{ height: 2, background: "#262626", width: "100%" }}>
+              <div style={{ height: 2, background: "rgba(221,217,208,0.08)", width: "100%", borderRadius: 1 }}>
                 <div style={{
-                  height: "100%", background: "#f97316", width: `${progress}%`,
-                  transition: "width 0.4s ease",
+                  height: "100%", background: C.verdigris, width: `${progress}%`,
+                  transition: "width 0.4s ease", borderRadius: 1,
                 }} />
               </div>
             </div>
 
             <h2 style={{
               fontSize: "clamp(18px, 4vw, 24px)", fontWeight: 700, lineHeight: 1.35,
-              color: "#fff", margin: "0 0 28px 0",
+              color: C.textDark, margin: "0 0 28px 0",
               fontFamily: "'Nulshock', 'DM Sans', sans-serif",
             }}>
               {questions[currentQ].question}
@@ -375,9 +441,9 @@ export default function App() {
                   key={i}
                   onClick={() => handleAnswer(i)}
                   style={{
-                    background: selected === i ? "#f9731620" : "#161616",
-                    border: selected === i ? "1px solid #f97316" : "1px solid #262626",
-                    color: "#e5e5e5",
+                    background: selected === i ? C.tealWash : C.surfaceDark,
+                    border: selected === i ? `1px solid ${C.verdigris}` : `1px solid ${C.borderDark}`,
+                    color: C.textDark,
                     padding: "14px 16px",
                     fontSize: 14,
                     textAlign: "left",
@@ -385,17 +451,18 @@ export default function App() {
                     transition: "all 0.2s",
                     fontFamily: "'DM Sans', sans-serif",
                     lineHeight: 1.5,
+                    borderRadius: 8,
                   }}
                   onMouseOver={(e) => {
                     if (selected !== i) {
-                      e.target.style.borderColor = "#404040";
-                      e.target.style.background = "#1a1a1a";
+                      e.target.style.borderColor = C.borderDarkHover;
+                      e.target.style.background = "rgba(221,217,208,0.04)";
                     }
                   }}
                   onMouseOut={(e) => {
                     if (selected !== i) {
-                      e.target.style.borderColor = "#262626";
-                      e.target.style.background = "#161616";
+                      e.target.style.borderColor = C.borderDark;
+                      e.target.style.background = C.surfaceDark;
                     }
                   }}
                 >
@@ -413,7 +480,7 @@ export default function App() {
                 style={{
                   background: "transparent",
                   border: "none",
-                  color: "#737373",
+                  color: C.secondary,
                   fontSize: 13,
                   cursor: "pointer",
                   fontFamily: "'DM Sans', sans-serif",
@@ -421,10 +488,10 @@ export default function App() {
                   padding: "8px 0",
                   transition: "color 0.2s",
                 }}
-                onMouseOver={(e) => e.target.style.color = "#a3a3a3"}
-                onMouseOut={(e) => e.target.style.color = "#737373"}
+                onMouseOver={(e) => e.target.style.color = C.textDark}
+                onMouseOut={(e) => e.target.style.color = C.secondary}
               >
-                ← Back
+                &#8592; Back
               </button>
             )}
           </div>
@@ -434,64 +501,63 @@ export default function App() {
         {screen === "teaser" && results && (
           <div>
             <Logo />
-            <div style={{
-              fontFamily: "'Space Mono', monospace", fontSize: 11, letterSpacing: 3,
-              color: "#f97316", textTransform: "uppercase", marginBottom: 24,
-            }}>
+            <div style={overline}>
               Your Results Are Ready
             </div>
 
-            <div style={{
-              background: "#161616", border: "1px solid #262626",
-              padding: 32, marginBottom: 32,
-            }}>
+            <div style={card}>
               <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 20 }}>
                 <div style={{
-                  fontFamily: "'Space Mono', monospace", fontSize: 48, fontWeight: 700,
+                  fontFamily: "'JetBrains Mono', 'Space Mono', monospace",
+                  fontSize: 48, fontWeight: 700,
                   color: results.tier.color,
                 }}>
                   {results.normalized}
                 </div>
                 <div>
-                  <div style={{ fontSize: 18, fontWeight: 700, color: results.tier.color, fontFamily: "'Nulshock', 'DM Sans', sans-serif" }}>
+                  <div style={{
+                    fontSize: 18, fontWeight: 700, color: results.tier.color,
+                    fontFamily: "'Nulshock', 'DM Sans', sans-serif",
+                  }}>
                     {results.tier.tier}
                   </div>
-                  <div style={{ fontSize: 13, color: "#737373" }}>Fragility Score out of 100</div>
+                  <div style={{ fontSize: 13, color: C.secondary }}>Fragility Score out of 100</div>
                 </div>
               </div>
 
               <div style={{
-                height: 6, background: "#262626", width: "100%", marginBottom: 20,
-                overflow: "hidden",
+                height: 6, background: "rgba(221,217,208,0.08)", width: "100%", marginBottom: 20,
+                overflow: "hidden", borderRadius: 3,
               }}>
                 <div style={{
                   height: "100%",
                   width: `${results.normalized}%`,
-                  background: "linear-gradient(90deg, #22c55e, #eab308, #f97316, #ef4444)",
+                  background: `linear-gradient(90deg, ${C.verdigris}, ${C.brass}, #D4622B, #C43B2E)`,
                   transition: "width 1s ease",
+                  borderRadius: 3,
                 }} />
               </div>
 
-              <p style={{ fontSize: 15, color: "#a3a3a3", lineHeight: 1.6, margin: 0 }}>
+              <p style={{ fontSize: 15, color: C.muted, lineHeight: 1.6, margin: 0 }}>
                 {results.tier.desc}
               </p>
             </div>
 
             <div style={{ position: "relative", marginBottom: 32 }}>
               <div style={{ filter: "blur(6px)", opacity: 0.4, pointerEvents: "none" }}>
-                <div style={{ background: "#161616", padding: 24, marginBottom: 12 }}>
-                  <div style={{ fontSize: 16, fontWeight: 700, color: "#fff", marginBottom: 8 }}>
+                <div style={{ background: C.surfaceDark, padding: 24, marginBottom: 12, borderRadius: 12 }}>
+                  <div style={{ fontSize: 16, fontWeight: 700, color: C.textDark, marginBottom: 8 }}>
                     Estimated Monthly Revenue at Risk
                   </div>
-                  <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 36, color: "#ef4444" }}>
+                  <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 36, color: "#C43B2E" }}>
                     ${results.estimatedLoss.toLocaleString()}/mo
                   </div>
                 </div>
-                <div style={{ background: "#161616", padding: 24 }}>
-                  <div style={{ fontSize: 16, fontWeight: 700, color: "#fff", marginBottom: 8 }}>
+                <div style={{ background: C.surfaceDark, padding: 24, borderRadius: 12 }}>
+                  <div style={{ fontSize: 16, fontWeight: 700, color: C.textDark, marginBottom: 8 }}>
                     Top Recommendations
                   </div>
-                  <div style={{ color: "#a3a3a3", fontSize: 14 }}>
+                  <div style={{ color: C.muted, fontSize: 14 }}>
                     Based on your answers, here are the 3 highest-impact changes...
                   </div>
                 </div>
@@ -501,10 +567,14 @@ export default function App() {
                 display: "flex", alignItems: "center", justifyContent: "center",
               }}>
                 <div style={{
-                  background: "#0a0a0a", border: "1px solid #f97316",
+                  background: C.bgDark, border: `1px solid ${C.brass}`,
                   padding: "16px 24px", textAlign: "center",
+                  borderRadius: 8,
                 }}>
-                  <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 12, color: "#f97316", letterSpacing: 1 }}>
+                  <span style={{
+                    fontFamily: "'JetBrains Mono', 'Space Mono', monospace",
+                    fontSize: 12, color: C.brass, letterSpacing: 1,
+                  }}>
                     ENTER YOUR EMAIL TO UNLOCK FULL RESULTS
                   </span>
                 </div>
@@ -517,55 +587,44 @@ export default function App() {
                 placeholder="Your name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                style={{
-                  background: "#161616", border: "1px solid #262626", color: "#fff",
-                  padding: "14px 16px", fontSize: 15, fontFamily: "'DM Sans', sans-serif",
-                  outline: "none",
-                }}
-                onFocus={(e) => e.target.style.borderColor = "#f97316"}
-                onBlur={(e) => e.target.style.borderColor = "#262626"}
+                style={inputBase}
+                onFocus={(e) => e.target.style.borderColor = C.verdigris}
+                onBlur={(e) => e.target.style.borderColor = C.borderDark}
               />
               <input
                 type="text"
                 placeholder="Company name"
                 value={company}
                 onChange={(e) => setCompany(e.target.value)}
-                style={{
-                  background: "#161616", border: "1px solid #262626", color: "#fff",
-                  padding: "14px 16px", fontSize: 15, fontFamily: "'DM Sans', sans-serif",
-                  outline: "none",
-                }}
-                onFocus={(e) => e.target.style.borderColor = "#f97316"}
-                onBlur={(e) => e.target.style.borderColor = "#262626"}
+                style={inputBase}
+                onFocus={(e) => e.target.style.borderColor = C.verdigris}
+                onBlur={(e) => e.target.style.borderColor = C.borderDark}
               />
               <input
                 type="email"
                 placeholder="Your email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                style={{
-                  background: "#161616", border: "1px solid #262626", color: "#fff",
-                  padding: "14px 16px", fontSize: 15, fontFamily: "'DM Sans', sans-serif",
-                  outline: "none",
-                }}
-                onFocus={(e) => e.target.style.borderColor = "#f97316"}
-                onBlur={(e) => e.target.style.borderColor = "#262626"}
+                style={inputBase}
+                onFocus={(e) => e.target.style.borderColor = C.verdigris}
+                onBlur={(e) => e.target.style.borderColor = C.borderDark}
               />
               <button
                 onClick={handleSubmit}
                 disabled={!email}
                 style={{
-                  background: email ? "#f97316" : "#404040",
-                  color: email ? "#0a0a0a" : "#737373",
+                  background: email ? C.brass : "rgba(221,217,208,0.08)",
+                  color: email ? C.textPrimary : C.secondary,
                   border: "none", padding: "16px 40px", fontSize: 16, fontWeight: 700,
                   cursor: email ? "pointer" : "not-allowed",
                   fontFamily: "'DM Sans', sans-serif",
                   transition: "all 0.2s",
+                  borderRadius: 8,
                 }}
               >
                 Unlock My Full Results
               </button>
-              <p style={{ fontSize: 12, color: "#525252", margin: "4px 0 0 0" }}>
+              <p style={{ fontSize: 12, color: C.secondary, margin: "4px 0 0 0", opacity: 0.6 }}>
                 No spam. Just your audit results and a few tips to fix what's broken.
               </p>
             </div>
@@ -576,75 +635,78 @@ export default function App() {
         {screen === "results" && results && (
           <div ref={resultsRef}>
             <Logo />
-            <div style={{
-              fontFamily: "'Space Mono', monospace", fontSize: 11, letterSpacing: 3,
-              color: "#f97316", textTransform: "uppercase", marginBottom: 24,
-            }}>
+            <div style={overline}>
               Full Audit Results
             </div>
 
-            <div style={{
-              background: "#161616", border: "1px solid #262626",
-              padding: 32, marginBottom: 24,
-            }}>
+            <div style={card}>
               <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 16 }}>
                 <div style={{
-                  fontFamily: "'Space Mono', monospace", fontSize: 56, fontWeight: 700,
+                  fontFamily: "'JetBrains Mono', 'Space Mono', monospace",
+                  fontSize: 56, fontWeight: 700,
                   color: results.tier.color,
                 }}>
                   {results.normalized}
                 </div>
                 <div>
-                  <div style={{ fontSize: 20, fontWeight: 700, color: results.tier.color, fontFamily: "'Nulshock', 'DM Sans', sans-serif" }}>
+                  <div style={{
+                    fontSize: 20, fontWeight: 700, color: results.tier.color,
+                    fontFamily: "'Nulshock', 'DM Sans', sans-serif",
+                  }}>
                     {results.tier.tier}
                   </div>
-                  <div style={{ fontSize: 13, color: "#737373" }}>Fragility Score out of 100</div>
+                  <div style={{ fontSize: 13, color: C.secondary }}>Fragility Score out of 100</div>
                 </div>
               </div>
               <div style={{
-                height: 6, background: "#262626", width: "100%", marginBottom: 16,
-                overflow: "hidden",
+                height: 6, background: "rgba(221,217,208,0.08)", width: "100%", marginBottom: 16,
+                overflow: "hidden", borderRadius: 3,
               }}>
                 <div style={{
                   height: "100%", width: `${results.normalized}%`,
-                  background: "linear-gradient(90deg, #22c55e, #eab308, #f97316, #ef4444)",
+                  background: `linear-gradient(90deg, ${C.verdigris}, ${C.brass}, #D4622B, #C43B2E)`,
+                  borderRadius: 3,
                 }} />
               </div>
-              <p style={{ fontSize: 15, color: "#a3a3a3", lineHeight: 1.6, margin: 0 }}>
+              <p style={{ fontSize: 15, color: C.muted, lineHeight: 1.6, margin: 0 }}>
                 {results.tier.desc}
               </p>
             </div>
 
             <div style={{
-              background: results.tier.bg, border: `1px solid ${results.tier.color}30`,
+              background: results.tier.bg,
+              border: `1px solid ${results.tier.color}30`,
+              borderRadius: 12,
               padding: 32, marginBottom: 24,
             }}>
-              <div style={{ fontSize: 14, color: "#a3a3a3", marginBottom: 8, fontWeight: 500 }}>
+              <div style={{ fontSize: 14, color: C.muted, marginBottom: 8, fontWeight: 500 }}>
                 Estimated Monthly Revenue at Risk
               </div>
               <div style={{
-                fontFamily: "'Space Mono', monospace", fontSize: "clamp(32px, 6vw, 48px)",
+                fontFamily: "'JetBrains Mono', 'Space Mono', monospace",
+                fontSize: "clamp(32px, 6vw, 48px)",
                 fontWeight: 700, color: results.tier.color, marginBottom: 12,
               }}>
                 ${results.estimatedLoss.toLocaleString()}/mo
               </div>
-              <div style={{ fontSize: 13, color: "#737373", lineHeight: 1.6 }}>
+              <div style={{ fontSize: 13, color: C.secondary, lineHeight: 1.6 }}>
                 That's roughly ${(results.estimatedLoss * 12).toLocaleString()}/year in revenue leaking through operational gaps. Based on your answers and company size.
               </div>
             </div>
 
             {results.criticalCount > 0 && (
               <div style={{
-                background: "#161616", border: "1px solid #262626",
-                padding: 24, marginBottom: 24,
+                ...card,
+                border: `1px solid rgba(196, 59, 46, 0.2)`,
               }}>
                 <div style={{
-                  fontFamily: "'Space Mono', monospace", fontSize: 11, letterSpacing: 2,
-                  color: "#ef4444", textTransform: "uppercase", marginBottom: 16,
+                  fontFamily: "'JetBrains Mono', 'Space Mono', monospace",
+                  fontSize: 11, letterSpacing: 2,
+                  color: "#C43B2E", textTransform: "uppercase", marginBottom: 16,
                 }}>
                   {results.criticalCount} Critical Vulnerabilit{results.criticalCount === 1 ? "y" : "ies"} Found
                 </div>
-                <p style={{ fontSize: 14, color: "#a3a3a3", lineHeight: 1.6, margin: 0 }}>
+                <p style={{ fontSize: 14, color: C.muted, lineHeight: 1.6, margin: 0 }}>
                   These are areas where a single disruption (someone out sick, quitting, or overwhelmed) could directly impact revenue or customer experience within 24 hours.
                 </p>
               </div>
@@ -652,29 +714,32 @@ export default function App() {
 
             <div style={{ marginBottom: 32 }}>
               <div style={{
-                fontFamily: "'Space Mono', monospace", fontSize: 11, letterSpacing: 3,
-                color: "#f97316", textTransform: "uppercase", marginBottom: 20,
+                ...overline,
+                color: C.brass,
+                marginBottom: 20,
               }}>
                 What To Fix First
               </div>
 
               {results.weakAreas.slice(0, 3).map((areaId, i) => (
                 <div key={areaId} style={{
-                  background: "#161616", border: "1px solid #262626",
+                  background: C.surfaceDark,
+                  border: `1px solid ${C.borderDark}`,
+                  borderRadius: 12,
                   padding: 24, marginBottom: 12,
                 }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 12 }}>
                     <span style={{
-                      fontFamily: "'Space Mono', monospace", fontSize: 12,
-                      color: "#f97316", fontWeight: 700,
+                      fontFamily: "'JetBrains Mono', 'Space Mono', monospace",
+                      fontSize: 12, color: C.brass, fontWeight: 700,
                     }}>
                       0{i + 1}
                     </span>
-                    <span style={{ fontSize: 16, fontWeight: 700, color: "#fff" }}>
+                    <span style={{ fontSize: 16, fontWeight: 700, color: C.textDark }}>
                       {recommendations[areaId]?.title}
                     </span>
                   </div>
-                  <p style={{ fontSize: 14, color: "#a3a3a3", lineHeight: 1.7, margin: 0 }}>
+                  <p style={{ fontSize: 14, color: C.muted, lineHeight: 1.7, margin: 0 }}>
                     {recommendations[areaId]?.rec}
                   </p>
                 </div>
@@ -682,13 +747,19 @@ export default function App() {
             </div>
 
             <div style={{
-              background: "#161616", border: "1px solid #f97316",
+              background: C.surfaceDark,
+              border: `1px solid ${C.brass}40`,
+              borderRadius: 12,
               padding: 32, textAlign: "center",
             }}>
-              <h3 style={{ fontSize: 20, fontWeight: 700, color: "#fff", margin: "0 0 12px 0", fontFamily: "'Nulshock', 'DM Sans', sans-serif" }}>
+              <h3 style={{
+                fontSize: 20, fontWeight: 700, color: C.textDark,
+                margin: "0 0 12px 0",
+                fontFamily: "'Nulshock', 'DM Sans', sans-serif",
+              }}>
                 Want help fixing this?
               </h3>
-              <p style={{ fontSize: 15, color: "#a3a3a3", lineHeight: 1.6, margin: "0 0 24px 0" }}>
+              <p style={{ fontSize: 15, color: C.muted, lineHeight: 1.6, margin: "0 0 24px 0" }}>
                 I help home services companies automate the exact gaps this audit identified. No fluff. Just systems that work when your people can't.
               </p>
               <a
@@ -697,8 +768,8 @@ export default function App() {
                 rel="noopener noreferrer"
                 style={{
                   display: "inline-block",
-                  background: "#f97316",
-                  color: "#0a0a0a",
+                  background: C.brass,
+                  color: C.textPrimary,
                   border: "none",
                   padding: "16px 36px",
                   fontSize: 16,
@@ -707,14 +778,15 @@ export default function App() {
                   fontFamily: "'DM Sans', sans-serif",
                   transition: "all 0.2s",
                   letterSpacing: 0.5,
+                  borderRadius: 8,
                 }}
-                onMouseOver={(e) => e.target.style.background = "#fb923c"}
-                onMouseOut={(e) => e.target.style.background = "#f97316"}
+                onMouseOver={(e) => e.target.style.filter = "brightness(1.08)"}
+                onMouseOut={(e) => e.target.style.filter = "brightness(1)"}
               >
                 Schedule a Free Discovery Call
               </a>
               <p style={{
-                fontSize: 12, color: "#525252", margin: "16px 0 0 0",
+                fontSize: 12, color: C.secondary, margin: "16px 0 0 0", opacity: 0.6,
               }}>
                 15 minutes. No pitch. Just a look at what's fixable.
               </p>
