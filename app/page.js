@@ -2,7 +2,7 @@
 
 import { useState, useRef } from "react";
 
-const WEBHOOK_URL = process.env.NEXT_PUBLIC_WEBHOOK_URL || "https://n8n.usecompound.ai/webhook/fragility-audit";
+const WEBHOOK_URL = process.env.NEXT_PUBLIC_WEBHOOK_URL || "https://n8n.usecompound.ai/webhook/assessment-submission";
 
 const questions = [
   {
@@ -237,7 +237,7 @@ export default function AuditPage() {
           company,
           score: results.normalized,
           tier: results.tier.tier,
-          estimatedMonthlyLoss: results.estimatedLoss,
+          estimated_monthly_loss: results.estimatedLoss,
           criticalAreas: results.weakAreas.join(", "),
           answers: Object.entries(answers).map(([id, a]) => ({
             question: a.questionText,
